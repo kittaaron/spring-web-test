@@ -1,0 +1,43 @@
+<configuration debug="false" scan="true" scanPeriod="30 seconds">
+	<property name="FILE_PATTERN" value="%date %level [%thread] %logger{10} [%M:%line] %msg - %replace(%ex){'\n','---'} %n" />
+
+	<property name="LOG_FILE_NAME" value="service" />
+
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<!--See also http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
+		<File>${CATALINA_APPLOG}/${LOG_FILE_NAME}.log</File>
+		<encoder>
+			<pattern>${FILE_PATTERN}</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<timeBasedFileNamingAndTriggeringPolicy
+					class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>200MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<fileNamePattern>${CATALINA_APPLOG}/archive/${LOG_FILE_NAME}-%d{yyyy-MM-dd}-%i.log.gz</fileNamePattern>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+	</appender>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%date %level [%thread] %logger{10} [%M:%line] %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- 过滤掉tesla的心跳log -->
+	<logger name="com.mogujie.tesla.server.monitor.ConcurrencyCounter" level="WARN" additivity="false">
+		<appender-ref ref="FILE" />
+	</logger>
+
+	<logger name="com.mogujie.service.actcenter" additivity="false">
+		<appender-ref ref="FILE"/>
+	</logger>
+
+	<root level="info">
+		<appender-ref ref="STDOUT"/>
+		<!--<springProfile name="dev,local">
+			<appender-ref ref="STDOUT"/>
+		</springProfile>-->
+	</root>
+</configuration>
